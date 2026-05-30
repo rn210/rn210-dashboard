@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:      #faf8f4;
+    --bg2:     #f3efe8;
+    --bg3:     #ede8de;
+    --b1:      rgba(120,105,80,0.13);
+    --b2:      rgba(120,105,80,0.25);
+    --text:    #2a2520;
+    --text2:   #7a6e60;
+    --text3:   #b0a493;
+    --accent:  #b06a2e;
+    --teal:    #2e7d6b;
+    --teal-bg: #e8f4f0;
+    --red:     #c0392b;
+    --red-bg:  #fdecea;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:      #1e1b17;
+      --bg2:     #252019;
+      --bg3:     #2e271e;
+      --b1:      rgba(200,180,140,0.09);
+      --b2:      rgba(200,180,140,0.19);
+      --text:    #f0ebe0;
+      --text2:   #a8998a;
+      --text3:   #6a5e50;
+      --accent:  #d4915a;
+      --teal:    #4aab94;
+      --teal-bg: #122620;
+      --red:     #e57373;
+      --red-bg:  #2a1414;
+    }
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 30px;
+    font-weight: 400;
+    letter-spacing: -.4px;
+    line-height: 1.1;
+  }
+
+  .header-sub {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 5px;
+    font-weight: 300;
+  }
+
+  .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+  .clock-time {
+    font-family: 'DM Serif Display', serif;
+    font-size: 44px;
+    font-weight: 400;
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+
+  .clock-date {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 5px;
+    font-weight: 300;
+    letter-spacing: .3px;
+  }
+
+  /* ── Backup bar ── */
+  .backup-bar {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .backup-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border-radius: 8px;
+    border: .5px solid var(--b2);
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all .18s;
+    white-space: nowrap;
+  }
+
+  .backup-btn:hover { background: var(--bg2); color: var(--text); border-color: var(--b2); }
+  .backup-btn.import:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-bg); }
+  .backup-btn.export:hover { border-color: var(--accent); color: var(--accent); background: rgba(176,106,46,.06); }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    background: var(--bg2);
+    border-radius: 13px;
+    padding: 4px;
+    border: .5px solid var(--b1);
+    margin-bottom: 2rem;
+  }
+
+  .tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all .22s;
+  }
+
+  .tab.active {
+    background: var(--bg);
+    color: var(--text);
+    font-weight: 500;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  }
+
+  /* ── Sections ── */
+  .section        { display: none; }
+  .section.active { display: block; animation: fadeUp .28s ease both; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(7px); }
+    to   { opacity: 1; transform: translateY(0);   }
+  }
+
+  /* ── Add bar ── */
+  .add-bar { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+
+  .add-bar input {
+    flex: 1;
+    height: 43px;
+    padding: 0 15px;
+    border: .5px solid var(--b2);
+    border-radius: 11px;
+    background: var(--bg2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  .add-bar input:focus       { border-color: var(--accent); }
+  .add-bar input::placeholder { color: var(--text3); }
+
+  .btn-add {
+    height: 43px;
+    padding: 0 20px;
+    background: var(--accent);
+    border: none;
+    border-radius: 11px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity .18s;
+  }
+
+  .btn-add:hover { opacity: .86; }
+
+  /* ── Progress ── */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 5px;
+    background: var(--bg3);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 99px;
+    transition: width .4s ease;
+  }
+
+  .progress-label { font-size: 12px; color: var(--text2); white-space: nowrap; }
+
+  /* ── Goal items ── */
+  .goals-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .goal-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--bg2);
+    border: .5px solid var(--b1);
+    border-radius: 13px;
+    transition: border-color .2s, opacity .2s;
+    animation: fadeUp .22s ease both;
+  }
+
+  .goal-item:hover { border-color: var(--b2); }
+  .goal-item.done  { opacity: .52; }
+
+  .goal-check {
+    width: 21px; height: 21px;
+    border-radius: 50%;
+    border: 1.5px solid var(--b2);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+    font-size: 11px;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .goal-check.checked { background: var(--teal); border-color: var(--teal); }
+
+  .goal-text       { flex: 1; font-size: 14px; color: var(--text); }
+  .goal-text.done  { text-decoration: line-through; color: var(--text3); }
+
+  .goal-text input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+  }
+
+  .goal-actions {
+    display: flex; gap: 3px;
+    opacity: 0; transition: opacity .18s;
+  }
+
+  .goal-item:hover .goal-actions { opacity: 1; }
+
+  .icon-btn {
+    width: 29px; height: 29px;
+    border: none; background: transparent;
+    border-radius: 8px; cursor: pointer;
+    color: var(--text2); font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .18s;
+  }
+
+  .icon-btn:hover     { background: var(--bg3); color: var(--text); }
+  .icon-btn.del:hover { background: var(--red-bg); color: var(--red); }
+
+  /* ── Empty ── */
+  .empty {
+    text-align: center;
+    padding: 3.5rem 1rem;
+    color: var(--text3);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .empty-icon { font-size: 30px; display: block; margin-bottom: 10px; }
+
+  /* ── Section title ── */
+  .section-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text3);
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .save-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--teal);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+
+  .save-dot.show { opacity: 1; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: var(--text);
+    color: var(--bg);
+    font-size: 13px;
+    padding: 9px 18px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.18);
+    opacity: 0;
+    transition: opacity .25s, transform .25s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 999;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Routines ── */
+  .routines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .routine-card {
+    background: var(--bg2);
+    border: .5px solid var(--b1);
+    border-radius: 20px;
+    padding: 16px;
+    transition: border-color .2s;
+    animation: fadeUp .22s ease both;
+  }
+
+  .routine-card:hover { border-color: var(--b2); }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .card-icon {
+    width: 38px; height: 38px;
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; flex-shrink: 0;
+  }
+
+  .card-actions {
+    display: flex; gap: 2px;
+    opacity: 0; transition: opacity .18s;
+  }
+
+  .routine-card:hover .card-actions { opacity: 1; }
+
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px; font-weight: 400;
+    line-height: 1.25; margin-bottom: 5px;
+  }
+
+  .card-desc {
+    font-size: 13px; color: var(--text2);
+    line-height: 1.55; font-weight: 300;
+    margin-bottom: 10px;
+  }
+
+  .day-pills { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 10px; }
+
+  .day-pill {
+    font-size: 11px; padding: 2px 8px;
+    border-radius: 99px;
+    border: .5px solid var(--b2);
+    color: var(--text2); background: var(--bg3);
+    font-weight: 500; cursor: pointer;
+    transition: all .18s; user-select: none;
+  }
+
+  .add-card-btn {
+    background: transparent;
+    border: 1px dashed var(--b2);
+    border-radius: 20px; padding: 16px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px; cursor: pointer;
+    color: var(--text3);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; min-height: 130px;
+    transition: all .2s; width: 100%;
+  }
+
+  .add-card-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(176,106,46,.04);
+  }
+
+  .add-card-btn .plus { font-size: 22px; }
+
+  /* ── Modal ── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(15,12,8,.55);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 300; padding: 1rem;
+    animation: fadeIn .18s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--bg);
+    border: .5px solid var(--b2);
+    border-radius: 22px; padding: 26px;
+    width: 360px; max-width: 100%;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 16px 60px rgba(0,0,0,.24);
+    animation: slideUp .2s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(14px); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+  }
+
+  .modal h3 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400; font-size: 20px; margin-bottom: 18px;
+  }
+
+  .modal label {
+    display: block; font-size: 12px;
+    color: var(--text2); letter-spacing: .3px;
+    margin-bottom: 6px; margin-top: 14px;
+  }
+
+  .modal input, .modal textarea {
+    width: 100%; padding: 9px 13px;
+    border: .5px solid var(--b2);
+    border-radius: 10px; background: var(--bg2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--text);
+    outline: none; transition: border-color .18s;
+  }
+
+  .modal input:focus, .modal textarea:focus { border-color: var(--accent); }
+  .modal textarea { resize: vertical; min-height: 72px; line-height: 1.55; }
+
+  .icon-grid { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+  .icon-opt {
+    width: 36px; height: 36px;
+    border: .5px solid var(--b2);
+    border-radius: 9px; background: var(--bg2);
+    cursor: pointer; font-size: 17px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .18s;
+  }
+
+  .icon-opt.on { border-color: var(--accent); background: rgba(176,106,46,.1); }
+
+  .color-grid { display: flex; gap: 7px; margin-top: 8px; flex-wrap: wrap; }
+
+  .color-dot {
+    width: 25px; height: 25px; border-radius: 50%;
+    cursor: pointer; border: 2.5px solid transparent;
+    transition: transform .15s;
+  }
+
+  .color-dot.on { border-color: var(--text); transform: scale(1.15); }
+
+  .day-grid { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+
+  .day-btn {
+    padding: 4px 11px;
+    border: .5px solid var(--b2);
+    border-radius: 99px; background: var(--bg2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; color: var(--text2);
+    cursor: pointer; transition: all .18s;
+  }
+
+  .day-btn.on { border-color: var(--teal); background: var(--teal-bg); color: var(--teal); font-weight: 500; }
+
+  .modal-footer {
+    display: flex; gap: 8px;
+    justify-content: flex-end; margin-top: 20px;
+  }
+
+  .btn-cancel {
+    padding: 9px 17px;
+    border: .5px solid var(--b2); border-radius: 10px;
+    background: transparent; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--text2); cursor: pointer;
+    transition: background .18s;
+  }
+
+  .btn-cancel:hover { background: var(--bg2); }
+
+  .btn-save {
+    padding: 9px 20px; border: none; border-radius: 10px;
+    background: var(--accent); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 500; color: #fff;
+    cursor: pointer; transition: opacity .18s;
+  }
+
+  .btn-save:hover { opacity: .86; }
+
+  /* ── Confirm modal ── */
+  .confirm-modal {
+    background: var(--bg);
+    border: .5px solid var(--b2);
+    border-radius: 18px; padding: 22px;
+    width: 320px; max-width: 100%;
+    box-shadow: 0 16px 60px rgba(0,0,0,.24);
+    animation: slideUp .2s ease;
+    text-align: center;
+  }
+
+  .confirm-modal p { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 18px; }
+
+  .confirm-btns { display: flex; gap: 8px; justify-content: center; }
+
+  .btn-danger {
+    padding: 9px 18px; border: none; border-radius: 10px;
+    background: var(--red); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 500; color: #fff;
+    cursor: pointer; transition: opacity .18s;
+  }
+
+  .btn-danger:hover { opacity: .86; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>Good day.</h1>
+      <p class="header-sub" id="sub"></p>
+    </div>
+    <div class="header-right">
+      <div style="text-align:right">
+        <div class="clock-time" id="clock">--:--</div>
+        <div class="clock-date" id="cdate"></div>
+      </div>
+      <!-- Backup controls -->
+      <div class="backup-bar">
+        <button class="backup-btn export" onclick="exportData()" title="Download a backup of all your data">
+          ↓ Export backup
+        </button>
+        <button class="backup-btn import" onclick="document.getElementById('import-file').click()" title="Restore from a backup file">
+          ↑ Import backup
+        </button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" id="tab-g" onclick="setTab('g')">🎯&nbsp; Daily goals</button>
+    <button class="tab"        id="tab-r" onclick="setTab('r')">🗓&nbsp; Weekly routines</button>
+  </div>
+
+  <!-- Goals -->
+  <div class="section active" id="sec-g">
+    <div class="section-title">Today's goals <span class="save-dot" id="g-dot"></span></div>
+    <div class="add-bar">
+      <input id="g-input" placeholder="Add a goal for today…" onkeydown="if(event.key==='Enter')addGoal()" />
+      <button class="btn-add" onclick="addGoal()">+ Add</button>
+    </div>
+    <div class="progress-row" id="g-prog" style="display:none">
+      <div class="progress-track"><div class="progress-fill" id="g-fill"></div></div>
+      <span class="progress-label" id="g-label"></span>
+    </div>
+    <div class="goals-list" id="g-list"></div>
+    <div class="empty" id="g-empty">
+      <span class="empty-icon">✦</span>
+      No goals yet — add one to start your day.
+    </div>
+  </div>
+
+  <!-- Routines -->
+  <div class="section" id="sec-r">
+    <div class="section-title">Weekly routines <span class="save-dot" id="r-dot"></span></div>
+    <div class="routines-grid" id="r-grid"></div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Routine modal -->
+<div class="overlay" id="modal" style="display:none" onclick="overlayClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="m-title">New routine card</h3>
+    <label>Title</label>
+    <input id="m-name" placeholder="e.g. Morning workout" />
+    <label>Description <span style="font-weight:300;color:var(--text3)">(optional)</span></label>
+    <textarea id="m-desc" placeholder="A short note…"></textarea>
+    <label>Icon</label>
+    <div class="icon-grid" id="m-icons"></div>
+    <label>Accent colour</label>
+    <div class="color-grid" id="m-colors"></div>
+    <label>Days</label>
+    <div class="day-grid" id="m-days"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save"   onclick="submitModal()">Save card</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm overlay (for import) -->
+<div class="overlay" id="confirm" style="display:none" onclick="document.getElementById('confirm').style.display='none'">
+  <div class="confirm-modal" onclick="event.stopPropagation()">
+    <h3 style="font-family:'DM Serif Display',serif;font-weight:400;font-size:18px;margin-bottom:10px">Replace all data?</h3>
+    <p>This will overwrite your current goals and routines with the backup file. This cannot be undone.</p>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="document.getElementById('confirm').style.display='none'">Cancel</button>
+      <button class="btn-danger" id="confirm-ok">Yes, import</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────
+const ICONS  = ['🏃','🧘','📚','💪','🥗','💧','🎯','🧹','🎨','🎵','✍️','🌿','🛏️','💊','🚶','🤸'];
+const COLORS = ['#b06a2e','#2e7d6b','#6a5cb0','#c0392b','#2874a6','#d4a017','#7d6b2e','#2e7d5c'];
+const WDAYS  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const G_KEY  = 'dash_goals';
+const R_KEY  = 'dash_routines';
+
+// ── Storage ───────────────────────────────────────────────────
+function lsGet(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch(e) { return fallback; }
+}
+
+function lsSet(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); return true; }
+  catch(e) { toast('⚠ Storage full — consider exporting a backup.', true); return false; }
+}
+
+// ── State ─────────────────────────────────────────────────────
+let goals    = lsGet(G_KEY, []);
+let routines = lsGet(R_KEY, []);
+
+// ── Utils ─────────────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimer;
+function toast(msg, isErr) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = isErr ? 'var(--red)' : 'var(--text)';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function flash(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+function persist(key, data, dotId) {
+  if (lsSet(key, data)) flash(dotId);
+}
+
+// ── Clock ──────────────────────────────────────────────────────
+const DNAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MNAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function tick() {
+  const n = new Date();
+  const pad = x => String(x).padStart(2,'0');
+  document.getElementById('clock').textContent = pad(n.getHours()) + ':' + pad(n.getMinutes());
+  document.getElementById('cdate').textContent = DNAMES[n.getDay()] + ', ' + MNAMES[n.getMonth()] + ' ' + n.getDate();
+  const h = n.getHours();
+  document.getElementById('sub').textContent =
+    h < 12 ? 'A fresh morning ahead.' :
+    h < 17 ? 'Keep the momentum going.' :
+             'Wind down with intention.';
+}
+tick();
+setInterval(tick, 1000);
+
+// ── Tabs ───────────────────────────────────────────────────────
+function setTab(t) {
+  ['g','r'].forEach(x => {
+    document.getElementById('tab-'+x).classList.toggle('active', x===t);
+    document.getElementById('sec-'+x).classList.toggle('active', x===t);
+  });
+}
+
+// ── Export / Import ────────────────────────────────────────────
+function exportData() {
+  const payload = {
+    version: 1,
+    exported: new Date().toISOString(),
+    goals,
+    routines
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href     = url;
+  a.download = `dashboard-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✓ Backup downloaded');
+}
+
+let pendingImport = null;
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    try {
+      const data = JSON.parse(evt.target.result);
+      if (!Array.isArray(data.goals) || !Array.isArray(data.routines))
+        throw new Error('Invalid format');
+      pendingImport = data;
+      // show confirm
+      document.getElementById('confirm').style.display = 'flex';
+      document.getElementById('confirm-ok').onclick = () => {
+        goals    = pendingImport.goals;
+        routines = pendingImport.routines;
+        lsSet(G_KEY, goals);
+        lsSet(R_KEY, routines);
+        renderGoals();
+        renderRoutines();
+        document.getElementById('confirm').style.display = 'none';
+        toast('✓ Backup restored successfully');
+        pendingImport = null;
+      };
+    } catch(err) {
+      toast('⚠ Could not read backup file — is it a valid dashboard export?', true);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';   // reset so same file can be re-imported
+}
+
+// ── Goals ──────────────────────────────────────────────────────
+let editGoalId = null;
+
+function addGoal() {
+  const inp = document.getElementById('g-input');
+  const v = inp.value.trim();
+  if (!v) return;
+  goals.push({ id: uid(), text: v, done: false });
+  inp.value = '';
+  renderGoals();
+  persist(G_KEY, goals, 'g-dot');
+}
+
+function toggleGoal(id) {
+  const g = goals.find(x => x.id === id);
+  if (g) g.done = !g.done;
+  renderGoals();
+  persist(G_KEY, goals, 'g-dot');
+}
+
+function startEdit(id) {
+  editGoalId = id;
+  renderGoals();
+  setTimeout(() => {
+    const el = document.getElementById('ge-'+id);
+    if (el) { el.focus(); el.select(); }
+  }, 20);
+}
+
+function finishEdit(id) {
+  if (editGoalId !== id) return;
+  const g  = goals.find(x => x.id === id);
+  const el = document.getElementById('ge-'+id);
+  if (g && el && el.value.trim()) g.text = el.value.trim();
+  editGoalId = null;
+  renderGoals();
+  persist(G_KEY, goals, 'g-dot');
+}
+
+function deleteGoal(id) {
+  goals = goals.filter(x => x.id !== id);
+  renderGoals();
+  persist(G_KEY, goals, 'g-dot');
+}
+
+function renderGoals() {
+  const list  = document.getElementById('g-list');
+  const empty = document.getElementById('g-empty');
+  const prog  = document.getElementById('g-prog');
+  const done  = goals.filter(g => g.done).length;
+  const total = goals.length;
+
+  if (!total) {
+    list.innerHTML = '';
+    empty.style.display = '';
+    prog.style.display  = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  prog.style.display  = 'flex';
+  document.getElementById('g-fill').style.width  = Math.round(done/total*100) + '%';
+  document.getElementById('g-label').textContent = done + ' / ' + total + ' done';
+
+  list.innerHTML = goals.map(g => {
+    const editing = editGoalId === g.id;
+    const inner   = editing
+      ? `<input id="ge-${g.id}" value="${esc(g.text)}"
+           onblur="finishEdit('${g.id}')"
+           onkeydown="if(event.key==='Enter')this.blur()" />`
+      : `<span>${esc(g.text)}</span>`;
+    return `
+      <div class="goal-item${g.done?' done':''}">
+        <div class="goal-check${g.done?' checked':''}" onclick="toggleGoal('${g.id}')">
+          ${g.done?'✓':''}
+        </div>
+        <div class="goal-text${g.done?' done':''}">
+          ${inner}
+        </div>
+        <div class="goal-actions">
+          <button class="icon-btn"     onclick="startEdit('${g.id}')"  title="Edit">✎</button>
+          <button class="icon-btn del" onclick="deleteGoal('${g.id}')" title="Delete">✕</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Routines ────────────────────────────────────────────────────
+function toggleRoutineDay(rid, day) {
+  const r = routines.find(x => x.id === rid);
+  if (!r) return;
+  r.days = r.days.includes(day) ? r.days.filter(d => d!==day) : [...r.days, day];
+  renderRoutines();
+  persist(R_KEY, routines, 'r-dot');
+}
+
+function deleteRoutine(id) {
+  routines = routines.filter(x => x.id !== id);
+  renderRoutines();
+  persist(R_KEY, routines, 'r-dot');
+}
+
+function renderRoutines() {
+  const grid = document.getElementById('r-grid');
+
+  const cards = routines.map(r => {
+    const pills = WDAYS.map(d => {
+      const on = r.days.includes(d);
+      const s  = on ? `border-color:${r.color};color:${r.color};background:${r.color}20` : '';
+      return `<span class="day-pill" style="${s}" onclick="toggleRoutineDay('${r.id}','${d}')">${d}</span>`;
+    }).join('');
+
+    return `
+      <div class="routine-card">
+        <div class="card-top">
+          <div class="card-icon" style="background:${r.color}22">${r.icon}</div>
+          <div class="card-actions">
+            <button class="icon-btn"     onclick="openModal('${r.id}')"     title="Edit">✎</button>
+            <button class="icon-btn del" onclick="deleteRoutine('${r.id}')" title="Delete">✕</button>
+          </div>
+        </div>
+        <div class="card-title">${esc(r.title)}</div>
+        ${r.desc ? `<div class="card-desc">${esc(r.desc)}</div>` : ''}
+        <div class="day-pills">${pills}</div>
+      </div>`;
+  }).join('');
+
+  grid.innerHTML = cards + `
+    <button class="add-card-btn" onclick="openModal(null)">
+      <span class="plus">+</span> New routine card
+    </button>`;
+}
+
+// ── Modal ────────────────────────────────────────────────────────
+let modalId = null, mIcon = ICONS[0], mColor = COLORS[0], mDays = [];
+
+function openModal(id) {
+  modalId = id;
+  const r = id ? routines.find(x => x.id === id) : null;
+  document.getElementById('m-title').textContent = r ? 'Edit routine card' : 'New routine card';
+  document.getElementById('m-name').value = r ? r.title : '';
+  document.getElementById('m-desc').value = r ? r.desc  : '';
+  mIcon  = r ? r.icon  : ICONS[0];
+  mColor = r ? r.color : COLORS[0];
+  mDays  = r ? [...r.days] : [];
+
+  document.getElementById('m-icons').innerHTML = ICONS.map(ic =>
+    `<div class="icon-opt${mIcon===ic?' on':''}" onclick="pickIcon('${ic}')">${ic}</div>`
+  ).join('');
+
+  document.getElementById('m-colors').innerHTML = COLORS.map(c =>
+    `<div class="color-dot${mColor===c?' on':''}" style="background:${c}" onclick="pickColor(this,'${c}')"></div>`
+  ).join('');
+
+  document.getElementById('m-days').innerHTML = WDAYS.map(d =>
+    `<button class="day-btn${mDays.includes(d)?' on':''}" onclick="toggleMDay('${d}',this)">${d}</button>`
+  ).join('');
+
+  document.getElementById('modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('m-name').focus(), 80);
+}
+
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+function overlayClick(e) { if (e.target.id === 'modal') closeModal(); }
+
+function pickIcon(ic) {
+  mIcon = ic;
+  document.querySelectorAll('.icon-opt').forEach(el =>
+    el.classList.toggle('on', el.textContent.trim() === ic));
+}
+
+function pickColor(el, c) {
+  mColor = c;
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function toggleMDay(d, el) {
+  mDays = mDays.includes(d) ? mDays.filter(x => x!==d) : [...mDays, d];
+  el.classList.toggle('on', mDays.includes(d));
+}
+
+function submitModal() {
+  const title = document.getElementById('m-name').value.trim();
+  if (!title) { document.getElementById('m-name').focus(); return; }
+  const desc = document.getElementById('m-desc').value.trim();
+
+  if (modalId) {
+    const r = routines.find(x => x.id === modalId);
+    if (r) Object.assign(r, { title, desc, icon: mIcon, color: mColor, days: [...mDays] });
+  } else {
+    routines.push({ id: uid(), title, desc, icon: mIcon, color: mColor, days: [...mDays] });
+  }
+
+  closeModal();
+  renderRoutines();
+  persist(R_KEY, routines, 'r-dot');
+}
+
+// ── Boot ─────────────────────────────────────────────────────────
+renderGoals();
+renderRoutines();
+</script>
+</body>
+</html>
